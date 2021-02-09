@@ -404,6 +404,99 @@ summary {
 <h3>Question 1</h3>
 <pre class="r"><code>#Create the bioassay dataset
 bioassy_df = tibble(dose = 0:4, n_dying = c(2,8,15,23,27))</code></pre>
+<div id="a" class="section level5">
+<h5>(a)</h5>
+<pre class="r"><code>#fit the glm with logit link
+fit_logit = glm(cbind(n_dying, 30-n_dying) ~ dose, family = binomial(link = &#39;logit&#39;), data = bioassy_df)
+summary(fit_logit)</code></pre>
+<pre><code>## 
+## Call:
+## glm(formula = cbind(n_dying, 30 - n_dying) ~ dose, family = binomial(link = &quot;logit&quot;), 
+##     data = bioassy_df)
+## 
+## Deviance Residuals: 
+##       1        2        3        4        5  
+## -0.4510   0.3597   0.0000   0.0643  -0.2045  
+## 
+## Coefficients:
+##             Estimate Std. Error z value Pr(&gt;|z|)    
+## (Intercept)  -2.3238     0.4179  -5.561 2.69e-08 ***
+## dose          1.1619     0.1814   6.405 1.51e-10 ***
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## (Dispersion parameter for binomial family taken to be 1)
+## 
+##     Null deviance: 64.76327  on 4  degrees of freedom
+## Residual deviance:  0.37875  on 3  degrees of freedom
+## AIC: 20.854
+## 
+## Number of Fisher Scoring iterations: 4</code></pre>
+<pre class="r"><code>#calculate the lower and upper bounds of CI
+logit_ci_lower = summary(fit_logit)$coefficient[2,1] - qnorm(0.975)*summary(fit_logit)$coefficient[2,2]
+logit_ci_higher = summary(fit_logit)$coefficient[2,1] + qnorm(0.975)*summary(fit_logit)$coefficient[2,2]</code></pre>
+<p>The estimate of <span class="math inline">\(\beta_{logit}\)</span> is 1.1618949 and the CI for <span class="math inline">\(\beta_{logit}\)</span> is (0.8063266,1.5174633)</p>
+<pre class="r"><code>#fit the glm with probit link
+fit_probit = glm(cbind(n_dying, 30-n_dying) ~ dose, family = binomial(link = &#39;probit&#39;), data = bioassy_df)
+summary(fit_probit)</code></pre>
+<pre><code>## 
+## Call:
+## glm(formula = cbind(n_dying, 30 - n_dying) ~ dose, family = binomial(link = &quot;probit&quot;), 
+##     data = bioassy_df)
+## 
+## Deviance Residuals: 
+##        1         2         3         4         5  
+## -0.35863   0.27493   0.01893   0.18230  -0.27545  
+## 
+## Coefficients:
+##             Estimate Std. Error z value Pr(&gt;|z|)    
+## (Intercept) -1.37709    0.22781  -6.045 1.49e-09 ***
+## dose         0.68638    0.09677   7.093 1.31e-12 ***
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## (Dispersion parameter for binomial family taken to be 1)
+## 
+##     Null deviance: 64.76327  on 4  degrees of freedom
+## Residual deviance:  0.31367  on 3  degrees of freedom
+## AIC: 20.789
+## 
+## Number of Fisher Scoring iterations: 4</code></pre>
+<pre class="r"><code>#calculate the lower and upper bounds of CI
+probit_ci_lower = summary(fit_probit)$coefficient[2,1] - qnorm(0.975)*summary(fit_probit)$coefficient[2,2]
+probit_ci_higher = summary(fit_probit)$coefficient[2,1] + qnorm(0.975)*summary(fit_probit)$coefficient[2,2]</code></pre>
+<p>The estimate of <span class="math inline">\(\beta_{probit}\)</span> is 0.6863805 and the CI for <span class="math inline">\(\beta_{probit}\)</span> is (0.4967217,0.8760393)</p>
+<pre class="r"><code>#fit the glm with probit link
+fit_cloglog = glm(cbind(n_dying, 30-n_dying) ~ dose, family = binomial(link = &#39;cloglog&#39;), data = bioassy_df)
+summary(fit_cloglog)</code></pre>
+<pre><code>## 
+## Call:
+## glm(formula = cbind(n_dying, 30 - n_dying) ~ dose, family = binomial(link = &quot;cloglog&quot;), 
+##     data = bioassy_df)
+## 
+## Deviance Residuals: 
+##       1        2        3        4        5  
+## -1.0831   0.2132   0.4985   0.5588  -0.6716  
+## 
+## Coefficients:
+##             Estimate Std. Error z value Pr(&gt;|z|)    
+## (Intercept)  -1.9942     0.3126  -6.378 1.79e-10 ***
+## dose          0.7468     0.1094   6.824 8.86e-12 ***
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## (Dispersion parameter for binomial family taken to be 1)
+## 
+##     Null deviance: 64.7633  on 4  degrees of freedom
+## Residual deviance:  2.2305  on 3  degrees of freedom
+## AIC: 22.706
+## 
+## Number of Fisher Scoring iterations: 5</code></pre>
+<pre class="r"><code>#calculate the lower and upper bounds of CI
+cloglog_ci_lower = summary(fit_cloglog)$coefficient[2,1] - qnorm(0.975)*summary(fit_cloglog)$coefficient[2,2]
+cloglog_ci_higher = summary(fit_cloglog)$coefficient[2,1] + qnorm(0.975)*summary(fit_cloglog)$coefficient[2,2]</code></pre>
+<p>The estimate of <span class="math inline">\(\beta_{cloglog}\)</span> is 0.7468193and the CI for <span class="math inline">\(\beta_{cloglog}\)</span> is (0.53232,0.9613187)</p>
+</div>
 </div>
 
 

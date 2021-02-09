@@ -5,16 +5,51 @@ date: "2/9/2021"
 output: html_document
 ---
 
-```{r}
+```{r warning=FALSE}
 library(tidyverse)
 ```
 
 
 ### Question 1
 
-
 ```{r create dataset}
 #Create the bioassay dataset
 bioassy_df = tibble(dose = 0:4, n_dying = c(2,8,15,23,27))
 ```
+##### (a)
+
+```{r model fit logit}
+#fit the glm with logit link
+fit_logit = glm(cbind(n_dying, 30-n_dying) ~ dose, family = binomial(link = 'logit'), data = bioassy_df)
+summary(fit_logit)
+
+#calculate the lower and upper bounds of CI
+logit_ci_lower = summary(fit_logit)$coefficient[2,1] - qnorm(0.975)*summary(fit_logit)$coefficient[2,2]
+logit_ci_higher = summary(fit_logit)$coefficient[2,1] + qnorm(0.975)*summary(fit_logit)$coefficient[2,2]
+```
+The estimate of $\beta_{logit}$ is `r fit_logit$coefficient[2]` and the CI for $\beta_{logit}$ is (`r logit_ci_lower`,`r logit_ci_higher`)
+
+```{r model fit probit}
+#fit the glm with probit link
+fit_probit = glm(cbind(n_dying, 30-n_dying) ~ dose, family = binomial(link = 'probit'), data = bioassy_df)
+summary(fit_probit)
+
+#calculate the lower and upper bounds of CI
+probit_ci_lower = summary(fit_probit)$coefficient[2,1] - qnorm(0.975)*summary(fit_probit)$coefficient[2,2]
+probit_ci_higher = summary(fit_probit)$coefficient[2,1] + qnorm(0.975)*summary(fit_probit)$coefficient[2,2]
+```
+
+The estimate of $\beta_{probit}$ is `r fit_probit$coefficient[2]` and the CI for $\beta_{probit}$ is (`r probit_ci_lower`,`r probit_ci_higher`)
+
+```{r model fit c-log-log}
+#fit the glm with probit link
+fit_cloglog = glm(cbind(n_dying, 30-n_dying) ~ dose, family = binomial(link = 'cloglog'), data = bioassy_df)
+summary(fit_cloglog)
+
+#calculate the lower and upper bounds of CI
+cloglog_ci_lower = summary(fit_cloglog)$coefficient[2,1] - qnorm(0.975)*summary(fit_cloglog)$coefficient[2,2]
+cloglog_ci_higher = summary(fit_cloglog)$coefficient[2,1] + qnorm(0.975)*summary(fit_cloglog)$coefficient[2,2]
+```
+
+The estimate of $\beta_{cloglog}$ is `r fit_cloglog$coefficient[2]`and the CI for $\beta_{cloglog}$ is (`r cloglog_ci_lower`,`r cloglog_ci_higher`)
 
