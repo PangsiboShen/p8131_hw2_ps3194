@@ -434,8 +434,16 @@ summary(fit_logit)</code></pre>
 ## Number of Fisher Scoring iterations: 4</code></pre>
 <pre class="r"><code>#calculate the lower and upper bounds of CI
 logit_ci_lower = summary(fit_logit)$coefficient[2,1] - qnorm(0.975)*summary(fit_logit)$coefficient[2,2]
-logit_ci_higher = summary(fit_logit)$coefficient[2,1] + qnorm(0.975)*summary(fit_logit)$coefficient[2,2]</code></pre>
-<p>The estimate of <span class="math inline">\(\beta_{logit}\)</span> is 1.1618949 and the CI for <span class="math inline">\(\beta_{logit}\)</span> is (0.8063266,1.5174633)</p>
+logit_ci_higher = summary(fit_logit)$coefficient[2,1] + qnorm(0.975)*summary(fit_logit)$coefficient[2,2]
+
+#Calculate the Deviance
+dev_logit = deviance(fit_logit)
+
+#Calculate the p(dying|x=0.01)
+predict(fit_logit, tibble(dose = 0.01), type = &#39;response&#39;)</code></pre>
+<pre><code>##          1 
+## 0.09011997</code></pre>
+<p>The estimate of <span class="math inline">\(\beta_{logit}\)</span> is 1.1618949, the CI for <span class="math inline">\(\beta_{logit}\)</span> is (0.8063266,1.5174633), the deviance is 0.3787483 and <span class="math inline">\(\hat{p}(dying|x=0.01)\)</span> = 0.09012.</p>
 <pre class="r"><code>#fit the glm with probit link
 fit_probit = glm(cbind(n_dying, 30-n_dying) ~ dose, family = binomial(link = &#39;probit&#39;), data = bioassy_df)
 summary(fit_probit)</code></pre>
@@ -464,8 +472,16 @@ summary(fit_probit)</code></pre>
 ## Number of Fisher Scoring iterations: 4</code></pre>
 <pre class="r"><code>#calculate the lower and upper bounds of CI
 probit_ci_lower = summary(fit_probit)$coefficient[2,1] - qnorm(0.975)*summary(fit_probit)$coefficient[2,2]
-probit_ci_higher = summary(fit_probit)$coefficient[2,1] + qnorm(0.975)*summary(fit_probit)$coefficient[2,2]</code></pre>
-<p>The estimate of <span class="math inline">\(\beta_{probit}\)</span> is 0.6863805 and the CI for <span class="math inline">\(\beta_{probit}\)</span> is (0.4967217,0.8760393)</p>
+probit_ci_higher = summary(fit_probit)$coefficient[2,1] + qnorm(0.975)*summary(fit_probit)$coefficient[2,2]
+
+#Calculate the Deviance
+dev_probit = deviance(fit_probit)
+
+#Calculate the p(dying|x=0.01)
+predict(fit_probit, tibble(dose = 0.01), type = &#39;response&#39;)</code></pre>
+<pre><code>##         1 
+## 0.0853078</code></pre>
+<p>The estimate of <span class="math inline">\(\beta_{probit}\)</span> is 0.6863805 and the CI for <span class="math inline">\(\beta_{probit}\)</span> is (0.4967217,0.8760393), the deviance is 0.3136684 and <span class="math inline">\(\hat{p}(dying|x=0.01)\)</span> = 0.0853078.</p>
 <pre class="r"><code>#fit the glm with probit link
 fit_cloglog = glm(cbind(n_dying, 30-n_dying) ~ dose, family = binomial(link = &#39;cloglog&#39;), data = bioassy_df)
 summary(fit_cloglog)</code></pre>
@@ -494,8 +510,182 @@ summary(fit_cloglog)</code></pre>
 ## Number of Fisher Scoring iterations: 5</code></pre>
 <pre class="r"><code>#calculate the lower and upper bounds of CI
 cloglog_ci_lower = summary(fit_cloglog)$coefficient[2,1] - qnorm(0.975)*summary(fit_cloglog)$coefficient[2,2]
-cloglog_ci_higher = summary(fit_cloglog)$coefficient[2,1] + qnorm(0.975)*summary(fit_cloglog)$coefficient[2,2]</code></pre>
-<p>The estimate of <span class="math inline">\(\beta_{cloglog}\)</span> is 0.7468193and the CI for <span class="math inline">\(\beta_{cloglog}\)</span> is (0.53232,0.9613187)</p>
+cloglog_ci_higher = summary(fit_cloglog)$coefficient[2,1] + qnorm(0.975)*summary(fit_cloglog)$coefficient[2,2]
+
+#Calculate the Deviance
+dev_cloglog = deviance(fit_cloglog)
+
+#Calculate the p(dying|x=0.01)
+predict(fit_cloglog, tibble(dose = 0.01), type = &#39;response&#39;)</code></pre>
+<pre><code>##         1 
+## 0.1281601</code></pre>
+<p>The estimate of <span class="math inline">\(\beta_{cloglog}\)</span> is 0.7468193and the CI for <span class="math inline">\(\beta_{cloglog}\)</span> is (0.53232,0.9613187), the deviance is 2.2304792 and <span class="math inline">\(\hat{p}(dying|x=0.01)\)</span> = 0.1281601.</p>
+<pre class="r"><code>#Generating the table for 1a
+table_1a = tibble(Model = c(&quot;Estimate of beta&quot;, &quot;CI for beta&quot;, &quot;Deviance&quot;, &quot;p hat&quot;), logit = c(1.1619,&quot;(0.8063,1.517)&quot;,0.3787,0.09012), probit = c(0.6864,&quot;(0.4967,0.8760)&quot;,0.3137,0.08531), cloglog = c(0.7468,&quot;(0.5323,0.9613)&quot;,2.2304,0.1282))
+
+table_1a %&gt;%
+  knitr::kable()</code></pre>
+<table>
+<thead>
+<tr class="header">
+<th align="left">Model</th>
+<th align="left">logit</th>
+<th align="left">probit</th>
+<th align="left">cloglog</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">Estimate of beta</td>
+<td align="left">1.1619</td>
+<td align="left">0.6864</td>
+<td align="left">0.7468</td>
+</tr>
+<tr class="even">
+<td align="left">CI for beta</td>
+<td align="left">(0.8063,1.517)</td>
+<td align="left">(0.4967,0.8760)</td>
+<td align="left">(0.5323,0.9613)</td>
+</tr>
+<tr class="odd">
+<td align="left">Deviance</td>
+<td align="left">0.3787</td>
+<td align="left">0.3137</td>
+<td align="left">2.2304</td>
+</tr>
+<tr class="even">
+<td align="left">p hat</td>
+<td align="left">0.09012</td>
+<td align="left">0.08531</td>
+<td align="left">0.1282</td>
+</tr>
+</tbody>
+</table>
+<p>The logit model has the highest estimate of <span class="math inline">\(\beta\)</span> among three models. The interpretation for <span class="math inline">\(\beta_{logit}\)</span> is that 1 unit increase in dose will increase the log odds of dying by 1.16. Since the probit model has the smallest deviance, hence it may be the best model to fit the data. All three models have the similar predict for <span class="math inline">\(\hat{p}(dying|x=0.01)\)</span>.</p>
+</div>
+<div id="b" class="section level5">
+<h5>(b)</h5>
+<p><span class="math display">\[
+\begin{split}
+g(P(dying) = 0.5) = g(0.5) = \beta_0+ \beta_1, \\
+point \ estimate= \hat{x_o} = -\frac{\hat{\beta_0}}{\hat{\beta_1}} \\
+logit \ model:g(0.5) = log(0.5/(1-0.5)) = 0 \\
+probit \ model:g(0.5) = qnorm(0.5) = 0 \\
+C-log-log \ model: log(-log(1-0.5)) = -0.3665
+\end{split}
+\]</span></p>
+<pre class="r"><code># LD50 est and CI
+beta0_l = fit_logit$coefficients[1]
+beta1_l = fit_logit$coefficients[2]
+betacov_l = vcov(fit_logit) # inverse fisher information
+x0fit_l = -beta0_l/beta1_l
+
+logit_ld50 = exp(x0fit_l)# point estimate of LD50
+
+varx0_l = betacov_l[1,1]/(beta1_l^2) + betacov_l[2,2]*(beta0_l^2)/(beta1_l^4) - 2*betacov_l[1,2]*beta0_l/(beta1_l^3)
+
+logit_ld50_ci = exp(x0fit_l + c(qnorm(0.05),-qnorm(0.05))*sqrt(varx0_l)) # 90% CI for LD50</code></pre>
+<pre class="r"><code># LD50 est and CI
+beta0_p = fit_probit$coefficients[1]
+beta1_p = fit_probit$coefficients[2]
+betacov_p = vcov(fit_probit) # inverse fisher information
+x0fit_p = -beta0_p/beta1_p
+
+probit_ld50 = exp(x0fit_p)# point estimate of LD50
+
+varx0_p = betacov_p[1,1]/(beta1_p^2) + betacov_p[2,2]*(beta0_p^2)/(beta1_p^4) - 2*betacov_p[1,2]*beta0_p/(beta1_p^3)
+
+fit_probit_ld50_ci = exp(x0fit_p + c(qnorm(0.05),-qnorm(0.05))*sqrt(varx0_p)) # 90% CI for LD50</code></pre>
+<pre class="r"><code># LD50 est and CI
+beta0_c = fit_cloglog$coefficients[1]
+beta1_c = fit_cloglog$coefficients[2]
+betacov_c = vcov(fit_cloglog) # inverse fisher information
+x0fit_c = (-0.3665 - beta0_c)/beta1_c
+
+cloglog_ld50 = exp(x0fit_c)# point estimate of LD50
+
+varx0_c = betacov_c[1,1]/(beta1_c^2) + betacov_c[2,2]*((-0.3665-beta0_c)^2)/(beta1_c^4) - 2*betacov_c[1,2]*(-0.3665-beta0_c)/(beta1_c^3)
+
+cloglog_ld50_ci_1 = exp(x0fit_c + c(qnorm(0.05),-qnorm(0.05))*sqrt(varx0_c)) # 90% CI for LD50</code></pre>
+<pre class="r"><code>#Generating the table for 1b
+table_1b = tibble(Model = c(&quot;Estimate of LD50&quot;, &quot;Lower CI&quot;, &quot;Upper CI&quot;), logit = c(logit_ld50,logit_ld50_ci[1],logit_ld50_ci[2]), probit = c(probit_ld50,fit_probit_ld50_ci[1],fit_probit_ld50_ci[2]), cloglog = c(cloglog_ld50,cloglog_ld50_ci_1[1],cloglog_ld50_ci_1[2]))
+
+table_1b %&gt;%
+  knitr::kable()</code></pre>
+<table>
+<thead>
+<tr class="header">
+<th align="left">Model</th>
+<th align="right">logit</th>
+<th align="right">probit</th>
+<th align="right">cloglog</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">Estimate of LD50</td>
+<td align="right">7.389056</td>
+<td align="right">7.435830</td>
+<td align="right">8.841402</td>
+</tr>
+<tr class="even">
+<td align="left">Lower CI</td>
+<td align="right">5.509632</td>
+<td align="right">5.582588</td>
+<td align="right">2.698847</td>
+</tr>
+<tr class="odd">
+<td align="left">Upper CI</td>
+<td align="right">9.909583</td>
+<td align="right">9.904289</td>
+<td align="right">28.964368</td>
+</tr>
+</tbody>
+</table>
+<hr />
+</div>
+</div>
+<div id="question-2" class="section level3">
+<h3>Question 2</h3>
+<pre class="r"><code># create a mph dataframe for question 2
+mph_df = tibble(
+  amount = seq(from = 10, to = 90, by = 5),
+  offer = c(4,6,10,12,39,36,22,14,10,12,8,9,3,1,5,2,1),
+  enroll = c(0,2,4,2,12,14,10,7,5,5,3,5,2,0,4,2,1)
+)</code></pre>
+<div id="a-how-does-the-model-fit-the-data" class="section level5">
+<h5>(a) How does the model fit the data?</h5>
+<pre class="r"><code>fit_2 = glm(cbind(enroll, offer-enroll) ~ amount, family = binomial(link = &#39;logit&#39;), data = mph_df)
+summary(fit_2)</code></pre>
+<pre><code>## 
+## Call:
+## glm(formula = cbind(enroll, offer - enroll) ~ amount, family = binomial(link = &quot;logit&quot;), 
+##     data = mph_df)
+## 
+## Deviance Residuals: 
+##     Min       1Q   Median       3Q      Max  
+## -1.4735  -0.6731   0.1583   0.5285   1.1275  
+## 
+## Coefficients:
+##             Estimate Std. Error z value Pr(&gt;|z|)    
+## (Intercept) -1.64764    0.42144  -3.910 9.25e-05 ***
+## amount       0.03095    0.00968   3.197  0.00139 ** 
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## (Dispersion parameter for binomial family taken to be 1)
+## 
+##     Null deviance: 21.617  on 16  degrees of freedom
+## Residual deviance: 10.613  on 15  degrees of freedom
+## AIC: 51.078
+## 
+## Number of Fisher Scoring iterations: 4</code></pre>
+</div>
+<div id="b-how-do-you-interpret-the-relationship-between-the-scholarship-amount-and-enrollment-rate-what-is-95-ci" class="section level5">
+<h5>(b) How do you interpret the relationship between the scholarship amount and enrollment rate? What is 95% CI?</h5>
+</div>
+<div id="c-how-much-scholarship-should-we-provide-to-get-40-yield-rate-the-percentage-of-admitted-students-who-enroll-what-is-the-95-ci" class="section level5">
+<h5>(c) How much scholarship should we provide to get 40% yield rate (the percentage of admitted students who enroll?) What is the 95% CI?</h5>
 </div>
 </div>
 

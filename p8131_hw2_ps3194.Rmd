@@ -26,8 +26,14 @@ summary(fit_logit)
 #calculate the lower and upper bounds of CI
 logit_ci_lower = summary(fit_logit)$coefficient[2,1] - qnorm(0.975)*summary(fit_logit)$coefficient[2,2]
 logit_ci_higher = summary(fit_logit)$coefficient[2,1] + qnorm(0.975)*summary(fit_logit)$coefficient[2,2]
+
+#Calculate the Deviance
+dev_logit = deviance(fit_logit)
+
+#Calculate the p(dying|x=0.01)
+predict(fit_logit, tibble(dose = 0.01), type = 'response')
 ```
-The estimate of $\beta_{logit}$ is `r fit_logit$coefficient[2]` and the CI for $\beta_{logit}$ is (`r logit_ci_lower`,`r logit_ci_higher`)
+The estimate of $\beta_{logit}$ is `r fit_logit$coefficient[2]`, the CI for $\beta_{logit}$ is (`r logit_ci_lower`,`r logit_ci_higher`), the deviance is `r dev_logit` and $\hat{p}(dying|x=0.01)$ = 0.09012.
 
 ```{r model fit probit}
 #fit the glm with probit link
@@ -37,9 +43,15 @@ summary(fit_probit)
 #calculate the lower and upper bounds of CI
 probit_ci_lower = summary(fit_probit)$coefficient[2,1] - qnorm(0.975)*summary(fit_probit)$coefficient[2,2]
 probit_ci_higher = summary(fit_probit)$coefficient[2,1] + qnorm(0.975)*summary(fit_probit)$coefficient[2,2]
+
+#Calculate the Deviance
+dev_probit = deviance(fit_probit)
+
+#Calculate the p(dying|x=0.01)
+predict(fit_probit, tibble(dose = 0.01), type = 'response')
 ```
 
-The estimate of $\beta_{probit}$ is `r fit_probit$coefficient[2]` and the CI for $\beta_{probit}$ is (`r probit_ci_lower`,`r probit_ci_higher`)
+The estimate of $\beta_{probit}$ is `r fit_probit$coefficient[2]` and the CI for $\beta_{probit}$ is (`r probit_ci_lower`,`r probit_ci_higher`), the deviance is `r dev_probit` and $\hat{p}(dying|x=0.01)$ = 0.0853078.
 
 ```{r model fit c-log-log}
 #fit the glm with probit link
@@ -49,7 +61,112 @@ summary(fit_cloglog)
 #calculate the lower and upper bounds of CI
 cloglog_ci_lower = summary(fit_cloglog)$coefficient[2,1] - qnorm(0.975)*summary(fit_cloglog)$coefficient[2,2]
 cloglog_ci_higher = summary(fit_cloglog)$coefficient[2,1] + qnorm(0.975)*summary(fit_cloglog)$coefficient[2,2]
+
+#Calculate the Deviance
+dev_cloglog = deviance(fit_cloglog)
+
+#Calculate the p(dying|x=0.01)
+predict(fit_cloglog, tibble(dose = 0.01), type = 'response')
 ```
 
-The estimate of $\beta_{cloglog}$ is `r fit_cloglog$coefficient[2]`and the CI for $\beta_{cloglog}$ is (`r cloglog_ci_lower`,`r cloglog_ci_higher`)
+The estimate of $\beta_{cloglog}$ is `r fit_cloglog$coefficient[2]`and the CI for $\beta_{cloglog}$ is (`r cloglog_ci_lower`,`r cloglog_ci_higher`), the deviance is `r dev_cloglog` and $\hat{p}(dying|x=0.01)$ = 0.1281601.
+
+```{r 1a table}
+#Generating the table for 1a
+table_1a = tibble(Model = c("Estimate of beta", "CI for beta", "Deviance", "p hat"), logit = c(1.1619,"(0.8063,1.517)",0.3787,0.09012), probit = c(0.6864,"(0.4967,0.8760)",0.3137,0.08531), cloglog = c(0.7468,"(0.5323,0.9613)",2.2304,0.1282))
+
+table_1a %>%
+  knitr::kable()
+```
+The logit model has the highest estimate of $\beta$ among three models. The interpretation for $\beta_{logit}$ is that 1 unit increase in dose will increase the log odds of dying by 1.16. Since the probit model has the smallest deviance, hence it may be the best model to fit the data. All three models have the similar predict for $\hat{p}(dying|x=0.01)$.
+
+##### (b)
+
+$$
+\begin{split}
+g(P(dying) = 0.5) = g(0.5) = \beta_0+ \beta_1, \\
+point \ estimate= \hat{x_o} = -\frac{\hat{\beta_0}}{\hat{\beta_1}} \\
+logit \ model:g(0.5) = log(0.5/(1-0.5)) = 0 \\
+probit \ model:g(0.5) = qnorm(0.5) = 0 \\
+C-log-log \ model: log(-log(1-0.5)) = -0.3665
+\end{split}
+$$
+
+```{r logit LD50}
+# LD50 est and CI
+beta0_l = fit_logit$coefficients[1]
+beta1_l = fit_logit$coefficients[2]
+betacov_l = vcov(fit_logit) # inverse fisher information
+x0fit_l = -beta0_l/beta1_l
+
+logit_ld50 = exp(x0fit_l)# point estimate of LD50
+
+varx0_l = betacov_l[1,1]/(beta1_l^2) + betacov_l[2,2]*(beta0_l^2)/(beta1_l^4) - 2*betacov_l[1,2]*beta0_l/(beta1_l^3)
+
+logit_ld50_ci = exp(x0fit_l + c(qnorm(0.05),-qnorm(0.05))*sqrt(varx0_l)) # 90% CI for LD50
+```
+
+```{r probit LD50}
+# LD50 est and CI
+beta0_p = fit_probit$coefficients[1]
+beta1_p = fit_probit$coefficients[2]
+betacov_p = vcov(fit_probit) # inverse fisher information
+x0fit_p = -beta0_p/beta1_p
+
+probit_ld50 = exp(x0fit_p)# point estimate of LD50
+
+varx0_p = betacov_p[1,1]/(beta1_p^2) + betacov_p[2,2]*(beta0_p^2)/(beta1_p^4) - 2*betacov_p[1,2]*beta0_p/(beta1_p^3)
+
+fit_probit_ld50_ci = exp(x0fit_p + c(qnorm(0.05),-qnorm(0.05))*sqrt(varx0_p)) # 90% CI for LD50
+```
+
+```{r cloglog LD50}
+# LD50 est and CI
+beta0_c = fit_cloglog$coefficients[1]
+beta1_c = fit_cloglog$coefficients[2]
+betacov_c = vcov(fit_cloglog) # inverse fisher information
+x0fit_c = (-0.3665 - beta0_c)/beta1_c
+
+cloglog_ld50 = exp(x0fit_c)# point estimate of LD50
+
+varx0_c = betacov_c[1,1]/(beta1_c^2) + betacov_c[2,2]*((-0.3665-beta0_c)^2)/(beta1_c^4) - 2*betacov_c[1,2]*(-0.3665-beta0_c)/(beta1_c^3)
+
+cloglog_ld50_ci_1 = exp(x0fit_c + c(qnorm(0.05),-qnorm(0.05))*sqrt(varx0_c)) # 90% CI for LD50
+```
+
+```{r 1b table}
+#Generating the table for 1b
+table_1b = tibble(Model = c("Estimate of LD50", "Lower CI", "Upper CI"), logit = c(logit_ld50,logit_ld50_ci[1],logit_ld50_ci[2]), probit = c(probit_ld50,fit_probit_ld50_ci[1],fit_probit_ld50_ci[2]), cloglog = c(cloglog_ld50,cloglog_ld50_ci_1[1],cloglog_ld50_ci_1[2]))
+
+table_1b %>%
+  knitr::kable()
+```
+
+---------------------------
+
+### Question 2
+
+```{r}
+# create a mph dataframe for question 2
+mph_df = tibble(
+  amount = seq(from = 10, to = 90, by = 5),
+  offer = c(4,6,10,12,39,36,22,14,10,12,8,9,3,1,5,2,1),
+  enroll = c(0,2,4,2,12,14,10,7,5,5,3,5,2,0,4,2,1)
+)
+```
+
+##### (a) How does the model fit the data?
+
+```{r}
+fit_2 = glm(cbind(enroll, offer-enroll) ~ amount, family = binomial(link = 'logit'), data = mph_df)
+summary(fit_2)
+```
+
+
+##### (b) How do you interpret the relationship between the scholarship amount and enrollment rate? What is 95% CI?
+
+##### (c) How much scholarship should we provide to get 40% yield rate (the percentage of admitted students who enroll?) What is the 95% CI?
+
+
+
 
