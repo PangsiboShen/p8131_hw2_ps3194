@@ -1,0 +1,20 @@
+---
+title: "p8131_hw2_ps3194"
+author: "Pangsibo Shen"
+date: "2/9/2021"
+output: html_document
+---
+
+```{r}
+library(tidyverse)
+```
+
+
+### Question 1
+
+
+```{r create dataset}
+#Create the bioassay dataset
+bioassy_df = tibble(dose = 0:4, n_dying = c(2,8,15,23,27))
+```
+
