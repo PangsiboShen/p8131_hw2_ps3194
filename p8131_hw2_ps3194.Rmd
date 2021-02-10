@@ -7,6 +7,7 @@ output: html_document
 
 ```{r warning=FALSE}
 library(tidyverse)
+library(ResourceSelection)
 ```
 
 
@@ -160,10 +161,22 @@ mph_df = tibble(
 ```{r}
 fit_2 = glm(cbind(enroll, offer-enroll) ~ amount, family = binomial(link = 'logit'), data = mph_df)
 summary(fit_2)
+hoslem.test(fit_2$y, fitted(fit_2),g=10)
 ```
-
+Since from theb hoslem test the p value is greater than 0.05, we reject the null and conclude that the model fits data well.
 
 ##### (b) How do you interpret the relationship between the scholarship amount and enrollment rate? What is 95% CI?
+
+```{r}
+#coefficient for beta 1
+beta_estimate = fit_2$coefficients[2]
+
+#calculate the lower and upper bounds of CI
+beta_estimate_ci_lower = summary(fit_2)$coefficient[2,1] - qnorm(0.975)*summary(fit_2)$coefficient[2,2]
+beta_estimate_ci_higher = summary(fit_2)$coefficient[2,1] + qnorm(0.975)*summary(fit_2)$coefficient[2,2]
+
+```
+The estimate for $\hat{\beta}$ is `r beta_estimate` and the 95% CI is (`r beta_estimate_ci_lower`, `r beta_estimate_ci_higher`) Per $1 increase in scholarship amount,there is an 0.03095043 unit increase in log odds ratio of enrollment rate  
 
 ##### (c) How much scholarship should we provide to get 40% yield rate (the percentage of admitted students who enroll?) What is the 95% CI?
 

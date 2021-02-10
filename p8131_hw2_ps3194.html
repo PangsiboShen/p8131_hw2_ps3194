@@ -400,6 +400,8 @@ summary {
 <pre><code>## -- Conflicts ------------------------------------------ tidyverse_conflicts() --
 ## x dplyr::filter() masks stats::filter()
 ## x dplyr::lag()    masks stats::lag()</code></pre>
+<pre class="r"><code>library(ResourceSelection)</code></pre>
+<pre><code>## ResourceSelection 0.3-5   2019-07-22</code></pre>
 <div id="question-1" class="section level3">
 <h3>Question 1</h3>
 <pre class="r"><code>#Create the bioassay dataset
@@ -680,9 +682,23 @@ summary(fit_2)</code></pre>
 ## AIC: 51.078
 ## 
 ## Number of Fisher Scoring iterations: 4</code></pre>
+<pre class="r"><code>hoslem.test(fit_2$y, fitted(fit_2),g=10)</code></pre>
+<pre><code>## 
+##  Hosmer and Lemeshow goodness of fit (GOF) test
+## 
+## data:  fit_2$y, fitted(fit_2)
+## X-squared = 1.6111, df = 8, p-value = 0.9907</code></pre>
+<p>Since from theb hoslem test the p value is greater than 0.05, we reject the null and conclude that the model fits data well.</p>
 </div>
 <div id="b-how-do-you-interpret-the-relationship-between-the-scholarship-amount-and-enrollment-rate-what-is-95-ci" class="section level5">
 <h5>(b) How do you interpret the relationship between the scholarship amount and enrollment rate? What is 95% CI?</h5>
+<pre class="r"><code>#coefficient for beta 1
+beta_estimate = fit_2$coefficients[2]
+
+#calculate the lower and upper bounds of CI
+beta_estimate_ci_lower = summary(fit_2)$coefficient[2,1] - qnorm(0.975)*summary(fit_2)$coefficient[2,2]
+beta_estimate_ci_higher = summary(fit_2)$coefficient[2,1] + qnorm(0.975)*summary(fit_2)$coefficient[2,2]</code></pre>
+<p>The estimate for <span class="math inline">\(\hat{\beta}\)</span> is 0.0309504 and the 95% CI is (0.0119785, 0.0499224) Per $1 increase in scholarship amount,there is an 0.03095043 unit increase in log odds ratio of enrollment rate</p>
 </div>
 <div id="c-how-much-scholarship-should-we-provide-to-get-40-yield-rate-the-percentage-of-admitted-students-who-enroll-what-is-the-95-ci" class="section level5">
 <h5>(c) How much scholarship should we provide to get 40% yield rate (the percentage of admitted students who enroll?) What is the 95% CI?</h5>
