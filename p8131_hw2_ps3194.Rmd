@@ -2,7 +2,7 @@
 title: "p8131_hw2_ps3194"
 author: "Pangsibo Shen"
 date: "2/9/2021"
-output: html_document
+output: pdf_document
 ---
 
 ```{r warning=FALSE}
@@ -23,6 +23,7 @@ bioassy_df = tibble(dose = 0:4, n_dying = c(2,8,15,23,27))
 #fit the glm with logit link
 fit_logit = glm(cbind(n_dying, 30-n_dying) ~ dose, family = binomial(link = 'logit'), data = bioassy_df)
 summary(fit_logit)
+#z value is from wald test for the coefficient
 
 #calculate the lower and upper bounds of CI
 logit_ci_lower = summary(fit_logit)$coefficient[2,1] - qnorm(0.975)*summary(fit_logit)$coefficient[2,2]
