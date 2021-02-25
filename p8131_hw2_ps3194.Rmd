@@ -124,6 +124,7 @@ fit_probit_ld50_ci = exp(x0fit_p + c(qnorm(0.05),-qnorm(0.05))*sqrt(varx0_p)) # 
 
 ```{r cloglog LD50}
 # LD50 est and CI
+log(-log(0.5))
 beta0_c = fit_cloglog$coefficients[1]
 beta1_c = fit_cloglog$coefficients[2]
 betacov_c = vcov(fit_cloglog) # inverse fisher information
@@ -164,7 +165,7 @@ fit_2 = glm(cbind(enroll, offer-enroll) ~ amount, family = binomial(link = 'logi
 summary(fit_2)
 hoslem.test(fit_2$y, fitted(fit_2),g=10)
 ```
-Since from theb hoslem test the p value is greater than 0.05, we reject the null and conclude that the model fits data well.
+Since from the Hosmer-Lemeshow test the p value is greater than 0.05, we reject the null and conclude that the model fits data well.
 
 ##### (b) How do you interpret the relationship between the scholarship amount and enrollment rate? What is 95% CI?
 
@@ -173,11 +174,13 @@ Since from theb hoslem test the p value is greater than 0.05, we reject the null
 beta_1_mph = fit_2$coefficients[2]
 
 #calculate the lower and upper bounds of CI
-beta_estimate_ci_lower = summary(fit_2)$coefficient[2,1] - qnorm(0.975)*summary(fit_2)$coefficient[2,2]
-beta_estimate_ci_higher = summary(fit_2)$coefficient[2,1] + qnorm(0.975)*summary(fit_2)$coefficient[2,2]
+beta_estimate_ci_lower = exp(summary(fit_2)$coefficient[2,1] - qnorm(0.975)*summary(fit_2)$coefficient[2,2])
+beta_estimate_ci_higher = exp(summary(fit_2)$coefficient[2,1] + qnorm(0.975)*summary(fit_2)$coefficient[2,2])
 
+#exponential coefficient for interpretation
+exp(beta_1_mph)
 ```
-The estimate for $\hat{\beta}$ is `r beta_1_mph` b and the 95% CI is (`r beta_estimate_ci_lower`, `r beta_estimate_ci_higher`) Per $1 increase in scholarship amount,there is an 0.03095043 unit increase in log odds ratio of enrollment rate  
+The estimate for $\hat{\beta}$ is `r exp(beta_1_mph)` b and the 95% CI is (`r beta_estimate_ci_lower`, `r beta_estimate_ci_higher`) Per $1000 increase in scholarship amount,we expect to see 3.1% increase in odds of enrolling in the program.
 
 ##### (c) How much scholarship should we provide to get 40% yield rate (the percentage of admitted students who enroll?) What is the 95% CI?
 $$
@@ -195,6 +198,7 @@ varx0_mph = betacov_mph[1,1]/(beta_1_mph^2) + betacov_mph[2,2]*(log(0.4/0.6)-bet
 
 mph_ci = x0fit_mph + c(qnorm(0.025),-qnorm(0.025))*sqrt(varx0_mph)
 ```
+
 ```{r 2c table}
 #Generating the table for 2c
 table_2c = tibble(estimate = x0fit_mph, ci_lower_bound = mph_ci[1], ci_upper_bound = mph_ci[2])
@@ -203,4 +207,68 @@ table_2c %>%
   knitr::kable()
 ```
 We need to provide 40.13 thousands of dollars as scholarship to get 40% yield rate and the 95% CI is (`r mph_ci`)
+
+------------------------------------------------------------------------------------------------------------------------
+## Solutions
+
+### 1
+```{r}
+x = c(0:4)
+death = c(2,8,15,23,27)
+data1 = data.frame(death, x)
+```
+
+```{r}
+# logit link
+glm1_logit <- glm(cbind(death, rep(30,5)-death)~x,data=data1,family=binomial(link="logit"))
+summary(glm1_logit)
+round(glm1_logit$coefficients[2],3)
+round(confint.default(glm1_logit),3) # CI
+round(sum(residuals(glm1_logit,type='deviance')^2),3) # deviance
+round(predict.glm(glm1_logit,newdata=data.frame(x=0.01),type='r'),4)
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
